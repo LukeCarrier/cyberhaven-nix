@@ -1,4 +1,3 @@
-{ cyberhaven }:
 {
   config,
   lib,
@@ -12,6 +11,12 @@ in
 {
   options.services.cyberhaven = {
     enable = mkEnableOption "cyberhaven";
+    package = mkOption {
+      type = lib.types.package;
+      default = pkgs.cyberhaven;
+      defaultText = lib.literalExpression "pkgs.cyberhaven";
+      description = "The cyberhaven package to use.";
+    };
     backend = mkOption {
       type = lib.types.str;
       description = "Backend URL";
@@ -36,7 +41,7 @@ in
       serviceConfig = {
         Type = "simple";
         User = "root";
-        ExecStart = "${cyberhaven}/bin/cyberhaven '${cfg.backend}' '${cfg.installToken}'";
+        ExecStart = "${cfg.package}/bin/cyberhaven '${cfg.backend}' '${cfg.installToken}'";
         KillMode = "process";
         KillSignal = "SIGKILL";
       };

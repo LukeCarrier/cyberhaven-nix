@@ -7,15 +7,16 @@
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
-      cyberhaven = pkgs.callPackage ./cyberhaven.nix { };
+      cyberhaven-unwrapped = pkgs.callPackage ./cyberhaven-unwrapped.nix { };
+      cyberhaven = pkgs.callPackage ./cyberhaven.nix { inherit cyberhaven-unwrapped; };
     in
     {
-      packages.${system} = rec {
-        inherit cyberhaven;
+      packages.${system} = {
+        inherit cyberhaven cyberhaven-unwrapped;
         default = cyberhaven;
       };
 
-      nixosModules.cyberhaven = import ./cyberhaven-module.nix { inherit cyberhaven; };
+      nixosModules.cyberhaven = ./cyberhaven-module.nix;
 
       formatter.${system} = pkgs.nixfmt-rfc-style;
     };
