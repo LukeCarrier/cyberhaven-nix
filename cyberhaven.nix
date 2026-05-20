@@ -9,7 +9,7 @@
   zlib,
   bzip2,
   keyutils,
-  buildFHSUserEnv,
+  buildFHSEnv,
   writeShellScript,
 }:
 let
@@ -48,7 +48,7 @@ let
     '';
   };
 in
-buildFHSUserEnv {
+buildFHSEnv {
   name = cyberhaven.pname;
 
   targetPkgs = pkgs: [
