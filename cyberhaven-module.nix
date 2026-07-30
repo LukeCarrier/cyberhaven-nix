@@ -1,4 +1,4 @@
-{ cyberhaven }:
+{ cyberhaven-overlay }:
 {
   config,
   lib,
@@ -50,6 +50,8 @@ in
       }
     ];
 
+    nixpkgs.overlays = [ cyberhaven-overlay ];
+
     systemd.services.cyberhaven = {
       description = "Cyberhaven";
       wants = [ "network-online.target" ];
@@ -73,7 +75,7 @@ in
             then ''token="$(cat ${cfg.installTokenFile})"''
             else ''token=${lib.escapeShellArg cfg.installToken}''
           }
-          exec ${cyberhaven}/bin/cyberhaven "$backend" "$token"
+          exec ${pkgs.cyberhaven}/bin/cyberhaven "$backend" "$token"
         '';
         KillMode = "process";
         KillSignal = "SIGKILL";

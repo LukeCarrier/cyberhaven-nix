@@ -1,58 +1,15 @@
 {
-  stdenv,
-  requireFile,
-  autoPatchelfHook,
-  dpkg,
-  openssl,
-  libgcc,
-  xz,
-  zlib,
-  bzip2,
-  keyutils,
-  buildFHSUserEnv,
+  cyberhaven-unwrapped,
+  buildFHSEnv,
   writeShellScript,
+  openssl,
 }:
-let
-  cyberhaven = stdenv.mkDerivation rec {
-    pname = "cyberhaven";
-    version = "24.09.03.91";
-    ref = "0dbc90";
-
-    src = requireFile {
-      name = "Cyberhaven-${version}-${ref}.deb";
-      url = "https://drive.google.com/drive/folders/12cIRewEoypqr0f5jmAXMW_iXZumTLf9h";
-      sha256 = "dfc1553ad831599d23854150d9ac5f38e4b0826fbfc038d3916b1eee844fe119";
-    };
-
-    nativeBuildInputs = [
-      autoPatchelfHook
-      dpkg
-    ];
-
-    buildInputs = [
-      openssl
-      libgcc.lib
-      xz
-      zlib
-      bzip2
-      keyutils.lib
-    ];
-
-    installPhase = ''
-      runHook preInstall
-
-      dpkg -X $src $out
-      rm $out/opt/cyberhaven/lib/libcyberhavennet-legacy.so
-
-      runHook postInstall
-    '';
-  };
-in
-buildFHSUserEnv {
-  name = cyberhaven.pname;
+buildFHSEnv {
+  pname = "cyberhaven";
+  version = cyberhaven-unwrapped.version;
 
   targetPkgs = pkgs: [
-    cyberhaven
+    cyberhaven-unwrapped
     pkgs.openssl
   ];
 
@@ -68,9 +25,9 @@ buildFHSUserEnv {
     shift 2
 
     echo ">>> Installing cyberhaven"
-    ${cyberhaven}/opt/cyberhaven/cyberhaven --set-backend-url "$backend" --set-install-token "$installToken"
+    ${cyberhaven-unwrapped}/opt/cyberhaven/cyberhaven --set-backend-url "$backend" --set-install-token "$installToken"
 
     echo ">>> Running cyberhaven"
-    exec ${cyberhaven}/opt/cyberhaven/cyberhaven "$@"
+    exec ${cyberhaven-unwrapped}/opt/cyberhaven/cyberhaven "$@"
   '';
 }

@@ -6,16 +6,24 @@
     { self, nixpkgs }:
     let
       system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-      cyberhaven = pkgs.callPackage ./cyberhaven.nix { };
+      pkgs = import nixpkgs {
+        inherit system;
+        overlays = [ self.overlays.default ];
+        config.allowUnfreePredicate =
+          pkg: builtins.elem (nixpkgs.lib.getName pkg) [ "Cyberhaven" ];
+      };
     in
     {
       packages.${system} = rec {
-        inherit cyberhaven;
+        inherit (pkgs) cyberhaven cyberhaven-unwrapped;
         default = cyberhaven;
       };
 
-      nixosModules.cyberhaven = import ./cyberhaven-module.nix { inherit cyberhaven; };
+      overlays.default = import ./overlay.nix;
+
+      nixosModules.cyberhaven = import ./cyberhaven-module.nix {
+        cyberhaven-overlay = self.overlays.default;
+      };
 
       formatter.${system} = pkgs.nixfmt-rfc-style;
     };
